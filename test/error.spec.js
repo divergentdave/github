@@ -10,14 +10,18 @@ import fixtureOk from './fixtures/repos-ratelimit-ok.js';
 describe('Rate limit error', function() {
    let github;
    let user;
+   let scope;
 
    before(function() {
       github = new Github();
       user = github.getUser(testUser.USERNAME);
    });
 
+   beforeEach(function() {
+      scope = fixtureExhausted();
+   });
+
    it('should reject promise with 403 error', function() {
-      const scope = fixtureExhausted();
       return user.listRepos().then(function() {
          assert.fail(undefined, undefined, 'Promise was resolved instead of rejected');
       }, function(error) {
@@ -25,12 +29,10 @@ describe('Rate limit error', function() {
          expect(error).to.have.own('response');
          expect(error.response).to.have.own('status');
          expect(error.response.status).to.be(403);
-         scope.done();
       });
    });
 
    it('should call callback', function(done) {
-      const scope = fixtureExhausted();
       user.listRepos(assertSuccessful(done, function(error, result) {
          expect(error).to.be.an.error();
          expect(error).to.have.own('response');
@@ -38,36 +40,43 @@ describe('Rate limit error', function() {
          expect(error.response.status).to.be(403);
          expect(result).is.not.a.list();
          expect(result).is.not.truthy();
-         scope.done();
          done();
       }));
+   });
+
+   afterEach(function() {
+      scope.done();
    });
 });
 
 describe('Rate limit OK', function() {
    let github;
    let user;
+   let scope;
 
    before(function() {
       github = new Github();
       user = github.getUser(testUser.USERNAME);
    });
 
+   beforeEach(function() {
+      scope = fixtureOk();
+   });
+
    it('should resolve promise', function() {
-      const scope = fixtureOk();
-      return expect(user.listRepos()).to.resolve.to.object().then(() => {
-         scope.done();
-      });
+      return expect(user.listRepos()).to.resolve.to.object();
    });
 
    it('should call callback with array of results', function(done) {
-      const scope = fixtureOk();
       user.listRepos(assertSuccessful(done, function(error, result) {
          expect(error).is.not.an.error();
          expect(error).is.not.truthy();
          expect(result).is.array();
-         scope.done();
          done();
       }));
+   });
+
+   afterEach(function() {
+      scope.done();
    });
 });
