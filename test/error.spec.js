@@ -1,5 +1,6 @@
 import assert from 'assert';
 import expect from 'must';
+import nock from 'nock';
 
 import Github from '../lib/GitHub';
 import testUser from './fixtures/user.json';
@@ -46,6 +47,7 @@ describe('Rate limit error', function() {
 
    afterEach(function() {
       scope.done();
+      nock.cleanAll();
    });
 });
 
@@ -78,5 +80,6 @@ describe('Rate limit OK', function() {
 
    afterEach(function() {
       scope.done();
+      nock.cleanAll();
    });
 });
