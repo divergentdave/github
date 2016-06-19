@@ -4,7 +4,7 @@ import nock from 'nock';
 
 import Github from '../lib/GitHub';
 import testUser from './fixtures/user.json';
-import {assertSuccessful} from './helpers/callbacks';
+import {assertSuccessful, assertFailure} from './helpers/callbacks';
 import fixtureExhausted from './fixtures/repos-ratelimit-exhausted.js';
 import fixtureOk from './fixtures/repos-ratelimit-ok.js';
 
@@ -34,13 +34,11 @@ describe('Rate limit error', function() {
    });
 
    it('should call callback', function(done) {
-      user.listRepos(assertSuccessful(done, function(error, result) {
+      user.listRepos(assertFailure(done, function(error) {
          expect(error).to.be.an.error();
          expect(error).to.have.own('response');
          expect(error.response).to.have.own('status');
          expect(error.response.status).to.be(403);
-         expect(result).is.not.a.list();
-         expect(result).is.not.truthy();
          done();
       }));
    });
