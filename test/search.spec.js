@@ -1,6 +1,5 @@
 import expect from 'must';
-import nock from 'nock';
-import vcr from 'nock-vcr-recorder-mocha';
+import playback from 'nock-playback';
 
 import Github from '../lib/GitHub';
 import testUser from './fixtures/user.json';
@@ -8,9 +7,6 @@ import testUser from './fixtures/user.json';
 describe('Search', function() {
    this.timeout(20 * 1000);
    let github;
-   vcr.config({
-      cassetteLibraryDir: 'test/fixtures'
-   });
 
    before(function() {
       github = new Github({
@@ -20,7 +16,9 @@ describe('Search', function() {
       });
    });
 
-   vcr.it('should search repositories', function() {
+   playback('search');
+
+   it('should search repositories', function() {
       let options;
       let search = github.search({
          q: 'tetris language:assembly',
@@ -35,7 +33,7 @@ describe('Search', function() {
          });
    });
 
-   vcr.it('should search code', function() {
+   it('should search code', function() {
       let options;
       let search = github.search({
          q: 'addClass in:file language:js repo:jquery/jquery'
@@ -48,7 +46,7 @@ describe('Search', function() {
          });
    });
 
-   vcr.it('should search issues', function() {
+   it('should search issues', function() {
       let options;
       let search = github.search({
          q: 'windows pip label:bug language:python state:open ',
@@ -63,7 +61,7 @@ describe('Search', function() {
          });
    });
 
-   vcr.it('should search users', function() {
+   it('should search users', function() {
       let options;
       let search = github.search({
          q: 'tom repos:>42 followers:>1000'
@@ -74,10 +72,5 @@ describe('Search', function() {
             expect(data).to.be.an.array();
             expect(data.length).to.be.above(0);
          });
-   });
-
-   afterEach(function() {
-      nock.cleanAll();
-      nock.restore();
    });
 });
