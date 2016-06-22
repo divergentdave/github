@@ -1,5 +1,5 @@
 import expect from 'must';
-import playback from 'nock-playback';
+import nock from 'nock';
 
 import Github from '../lib/GitHub';
 import testUser from './fixtures/user.json';
@@ -14,9 +14,8 @@ describe('Search', function() {
          password: testUser.PASSWORD,
          auth: 'basic'
       });
+      nock.load('test/fixtures/search.json');
    });
-
-   playback('search');
 
    it('should search repositories', function() {
       let options;
@@ -72,5 +71,10 @@ describe('Search', function() {
             expect(data).to.be.an.array();
             expect(data.length).to.be.above(0);
          });
+   });
+
+   after(function() {
+      nock.cleanAll();
+      nock.restore();
    });
 });
